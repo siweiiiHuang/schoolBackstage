@@ -7,7 +7,7 @@ export function login(phone,password,remeber) {
           phone: phone,
           password: password,
           rememberMe: remeber
-        }
+        },
     });
 }
 
@@ -37,8 +37,8 @@ export function getTableData(type) {
   })
 }
 
-//审核通过
-export function passPaper(id,status,pinned) {
+//改变纸条状态
+export function changePaperStatus(id,status,pinned) {
   return axios.post('/audit/post/setStatusAndPinned', {
     id,
     status,

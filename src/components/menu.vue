@@ -8,7 +8,7 @@
     <el-sub-menu index="1">
       <template #title>
         <el-icon><Promotion /></el-icon>
-        <span>审核</span>
+        <span>帖子</span>
       </template>
       <el-menu-item index="/checking">待审核</el-menu-item>
       <el-menu-item index="/allPaper">全部</el-menu-item>

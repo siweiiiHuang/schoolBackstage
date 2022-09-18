@@ -12,13 +12,16 @@ export default defineConfig({
     proxy: {
       // 选项写法
       '/api': {
-        target: 'https://www.yewanba.com/quwan/admin',
+        target: 'https://quwanxy.com/quwan/admin',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        cors: true
+
       },
     }
   },
   resolve: { alias: { '~': path.resolve(__dirname, 'src') } },
+  base: './',
   plugins: [
     WindiCSS(),
     vue(),

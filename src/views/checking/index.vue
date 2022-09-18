@@ -80,7 +80,7 @@
         </el-table-column>
         <el-table-column prop="" label="操作" width="270">
           <template #default="{ row }">
-            <el-button type="success" @click="pass(row)">通过</el-button>
+            <el-button type="success" @click="changeStatus(row.id)">通过</el-button>
             <el-button type="danger">驳回</el-button>
             <el-button type="primary">置顶</el-button>
           </template>
@@ -101,8 +101,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { getTableData,passPaper } from "~/api/manager";
+import { onMounted, ref } from "vue";
+import { getTableData,changePaperStatus } from "~/api/manager";
 import { Search } from "@element-plus/icons-vue";
 let inputSearch = ref('')
 let tableData = ref([]);
@@ -111,6 +111,9 @@ let currentPage = ref(1);
 let pageSize = ref(5);
 let total = ref(0);
 let imgSrcList = ref([]);
+onMounted(() => {
+  getData();
+})
 function handlePreview(file) {
   imgSrcList.value.push(file);
 }
@@ -126,14 +129,9 @@ async function getData() {
   tableDataList.value.push(tableData.value.splice(0, tableData.value.length));
   console.log(tableDataList.value.length);
 }
-getData();
-async function pass(row) {
-  let res = await passPaper(row.id, 2, 1); //2是通过，1是非置顶
-  if (res.data.code == 10) {
-    getCheckingNum(1, 0); //1是待审核，0是全部
-    tableDataList.value = [];
-    getData();
-  }
+async function changeStatus(id,status,pinned) {
+  let res = await changePaperStatus(id,status,pinned);
+
 }
 function handleCurrentChange(val) {
   currentPage.value = val;

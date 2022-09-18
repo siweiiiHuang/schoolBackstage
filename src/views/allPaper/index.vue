@@ -9,7 +9,11 @@
             placeholder="Type something"
             :prefix-icon="Search"
         /></el-col>
-        <el-col :span="4" :xs="6" class="flex items-center justify-center w-full">
+        <el-col
+          :span="4"
+          :xs="6"
+          class="flex items-center justify-center w-full"
+        >
           <el-dropdown>
             <span class="el-dropdown-link">
               分类
@@ -67,26 +71,10 @@
         <el-table-column prop="" label="图片" width="210">
           <template #default="{ row }">
             <el-image
-              :src="row.picUrl1"
+              :src="item"
               fit="cover"
-              style="width: 50px; height: 50px"
-              v-if="row.picUrl1"
-              class="rounded-sm"
-              :preview-teleported="true"
-            />
-            <el-image
-              :src="row.picUrl2"
-              fit="cover"
-              style="width: 50px; height: 50px"
-              v-if="row.picUrl2"
-              class="rounded-sm"
-              :preview-teleported="true"
-            />
-            <el-image
-              :src="row.picUrl3"
-              fit="cover"
-              style="width: 50px; height: 50px"
-              v-if="row.picUrl3"
+              style="width: 50px; height: 50px;"
+              v-for="item in row.picUrlList"
               class="rounded-sm"
               :preview-teleported="true"
             />
@@ -94,7 +82,21 @@
         </el-table-column>
         <el-table-column prop="" label="状态" width="360">
           <template #default="{ row }">
-            <el-button :type="status[0]" @click="statusChange(row)" v-for="status in statusList">{{status[1]}}</el-button>
+            <el-button
+              type="success"
+              :disabled="row.disabledList[0]"
+              @click="changeStatus(row.id, 2, 1)"
+              >{{ row.statusList[0] }}</el-button
+            >
+            <el-button type="warning" :disabled="row.disabledList[1]" @click="changeStatus(row.id, 3,1)">{{
+              row.statusList[1]
+            }}</el-button>
+            <el-button type="primary" plain @click="changeStatus(row.id,2,(row.pinned == 2)?1:2)">{{
+              row.statusList[2]
+            }}</el-button>
+            <el-button type="danger" :disabled="row.disabledList[3]" @click="changeStatus(row.id, 4,1)">{{
+              row.statusList[3]
+            }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -111,7 +113,7 @@
 </template>
 
 <script setup>
-import { selectAll, getAllPaperNumber } from "~/api/manager";
+import { selectAll, getAllPaperNumber, changePaperStatus } from "~/api/manager";
 import { ref, onMounted } from "vue";
 import { Search } from "@element-plus/icons-vue";
 let inputSearch = ref("");
@@ -120,26 +122,38 @@ let currentPage = ref(1);
 let pageSize = ref(20);
 let imgSrcList = ref([]);
 let total = ref(0);
-let statusList = ref([['success','通过'],['warning','驳回'],['primary','置顶'],['danger','删除']])
-//let button = ref(true)
-//const statuses = ["待审核", "已删除", "已置顶", "已通过", "已驳回"];
 onMounted(() => {
   getPaperNumber(0, "2022-07-30");
   selectAllPaper(currentPage.value);
 });
 async function getPaperNumber(type, sinceDate) {
   let res = await getAllPaperNumber(type, sinceDate);
-  total.value = res.data.data;
+  total.value = res.data.data
 }
+//查询当前选择页的纸条
 async function selectAllPaper(currentPage) {
   let res = await selectAll(currentPage);
   tableData.value = res.data.data;
   for (const val of tableData.value) {
-    if(val.status == 1) {
-      val.statusList = ['通过','驳回','置顶','删除']
+    if (val.status == 1) {
+      val.statusList = ["通过", "驳回", "置顶", "删除"];
+      val.disabledList = [false, false, false, false];
+    } else if (val.status == 2) {
+      if (val.pinned == 1) {
+        val.statusList = ["已通过", "驳回", "置顶", "删除"];
+        val.disabledList = [true, false, false, false];
+      } else {
+        val.statusList = ["已通过", "驳回", "取消置顶", "删除"];
+        val.disabledList = [true, false, false, false];
+      }
+    } else if (val.status == 3) {
+      val.statusList = ["通过", "已驳回", "置顶", "删除"];
+      val.disabledList = [false, true, false, false];
+    } else if (val.status == 4) {
+      val.statusList = ["通过", "驳回", "置顶", "已删除"];
+      val.disabledList = [false, false, false, true];
     }
   }
-  console.log(tableData.value);
 }
 function handlePreview(file) {
   imgSrcList.value = [];
@@ -149,8 +163,11 @@ function handleCurrentChange(val) {
   currentPage.value = val;
   selectAllPaper(currentPage.value);
 }
-function statusChange(row,index) {
 
+async function changeStatus(id, status, pinned) {
+  await changePaperStatus(id, status, pinned);
+  await getPaperNumber(0, "2022-07-30");
+  selectAllPaper(currentPage.value);
 }
 </script>
 
