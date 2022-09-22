@@ -80,9 +80,9 @@
         </el-table-column>
         <el-table-column prop="" label="操作" width="270">
           <template #default="{ row }">
-            <el-button type="success" @click="changeStatus(row.id)">通过</el-button>
-            <el-button type="danger">驳回</el-button>
-            <el-button type="primary">置顶</el-button>
+            <el-button type="success" @click="changeStatus(row.id,2,1,null)">通过</el-button>
+            <el-button type="danger" @click="changeStatus(row.id,3,1,'驳回')">驳回</el-button>
+            <el-button type="primary" @click="changeStatus(row.id,2,2,null)">置顶</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -129,9 +129,9 @@ async function getData() {
   tableDataList.value.push(tableData.value.splice(0, tableData.value.length));
   console.log(tableDataList.value.length);
 }
-async function changeStatus(id,status,pinned) {
-  let res = await changePaperStatus(id,status,pinned);
-
+async function changeStatus(id, status, pinned,statusInfo) {
+  await changePaperStatus(id, status, pinned,statusInfo);
+  
 }
 function handleCurrentChange(val) {
   currentPage.value = val;

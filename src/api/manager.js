@@ -38,11 +38,12 @@ export function getTableData(type) {
 }
 
 //改变纸条状态
-export function changePaperStatus(id,status,pinned) {
+export function changePaperStatus(id,status,pinned,statusInfo) {
   return axios.post('/audit/post/setStatusAndPinned', {
     id,
     status,
-    pinned
+    pinned,
+    statusInfo
   })
 }
 

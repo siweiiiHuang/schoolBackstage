@@ -48,7 +48,7 @@
       <el-table :data="tableData" style="width: 100%" table-layout="auto">
         <el-table-column prop="createTime" label="发布时间" width="120" />
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="type" label="类型" width="100" />
+        <el-table-column prop="typeInfo" label="类型" width="100" />
         <el-table-column label="头像" width="100">
           <template #default="{ row }">
             <el-image
@@ -75,6 +75,7 @@
               fit="cover"
               style="width: 50px; height: 50px;"
               v-for="item in row.picUrlList"
+              :preview-src-list="row.picUrlList"
               class="rounded-sm"
               :preview-teleported="true"
             />
@@ -85,16 +86,16 @@
             <el-button
               type="success"
               :disabled="row.disabledList[0]"
-              @click="changeStatus(row.id, 2, 1)"
+              @click="changeStatus(row.id, 2, 1,null)"
               >{{ row.statusList[0] }}</el-button
             >
-            <el-button type="warning" :disabled="row.disabledList[1]" @click="changeStatus(row.id, 3,1)">{{
+            <el-button type="warning" :disabled="row.disabledList[1]" @click="changeStatus(row.id, 3,1,'驳回')">{{
               row.statusList[1]
             }}</el-button>
-            <el-button type="primary" plain @click="changeStatus(row.id,2,(row.pinned == 2)?1:2)">{{
+            <el-button type="primary" plain @click="changeStatus(row.id,2,(row.pinned == 2)?1:2,null)">{{
               row.statusList[2]
             }}</el-button>
-            <el-button type="danger" :disabled="row.disabledList[3]" @click="changeStatus(row.id, 4,1)">{{
+            <el-button type="danger" :disabled="row.disabledList[3]" @click="changeStatus(row.id, 4,1,null)">{{
               row.statusList[3]
             }}</el-button>
           </template>
@@ -164,9 +165,8 @@ function handleCurrentChange(val) {
   selectAllPaper(currentPage.value);
 }
 
-async function changeStatus(id, status, pinned) {
-  await changePaperStatus(id, status, pinned);
-  await getPaperNumber(0, "2022-07-30");
+async function changeStatus(id, status, pinned,statusInfo) {
+  await changePaperStatus(id, status, pinned,statusInfo);
   selectAllPaper(currentPage.value);
 }
 </script>
