@@ -12,6 +12,7 @@
       </template>
       <el-menu-item index="/checking">待审核</el-menu-item>
       <el-menu-item index="/allPaper">全部</el-menu-item>
+      <el-menu-item index="/comment">待审核评论</el-menu-item>
     </el-sub-menu>
   </el-menu>
 </template>

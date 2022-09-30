@@ -37,6 +37,14 @@ export function getTableData(type) {
   })
 }
 
+//获取待审核的评论
+export function getComment() {
+  return axios.get('/audit/comment/getAll', {
+    params: {
+    }
+  })
+}
+
 //改变纸条状态
 export function changePaperStatus(id,status,pinned,statusInfo) {
   return axios.post('/audit/post/setStatusAndPinned', {

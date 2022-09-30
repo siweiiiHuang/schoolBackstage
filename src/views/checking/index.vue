@@ -53,36 +53,21 @@
         <el-table-column prop="" label="图片" width="210">
           <template #default="{ row }">
             <el-image
-              :src="row.picUrl1"
+              :src="item"
               fit="cover"
-              style="width: 50px; height: 50px"
-              v-if="row.picUrl1"
-              class="rounded-sm"
-              :preview-teleported="true"
-            />
-            <el-image
-              :src="row.picUrl2"
-              fit="cover"
-              style="width: 50px; height: 50px"
-              v-if="row.picUrl2"
-              class="rounded-sm"
-              :preview-teleported="true"
-            />
-            <el-image
-              :src="row.picUrl3"
-              fit="cover"
-              style="width: 50px; height: 50px"
-              v-if="row.picUrl3"
+              style="width: 50px; height: 50px;"
+              v-for="item in row.picUrlList"
+              :preview-src-list="row.picUrlList"
               class="rounded-sm"
               :preview-teleported="true"
             />
           </template>
         </el-table-column>
         <el-table-column prop="" label="操作" width="270">
-          <template #default="{ row }">
-            <el-button type="success" @click="changeStatus(row.id,2,1,null)">通过</el-button>
-            <el-button type="danger" @click="changeStatus(row.id,3,1,'驳回')">驳回</el-button>
-            <el-button type="primary" @click="changeStatus(row.id,2,2,null)">置顶</el-button>
+          <template #default="{ row,index }">
+            <el-button type="success" @click="changeStatus(row.id,2,1,null,index)">通过</el-button>
+            <el-button type="danger" @click="changeStatus(row.id,3,1,'驳回',index)">驳回</el-button>
+            <el-button type="primary" @click="changeStatus(row.id,2,2,null,index)">置顶</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -127,15 +112,13 @@ async function getData() {
   }
   //console.log(tableData.value);
   tableDataList.value.push(tableData.value.splice(0, tableData.value.length));
-  console.log(tableDataList.value.length);
 }
-async function changeStatus(id, status, pinned,statusInfo) {
+async function changeStatus(id, status, pinned,statusInfo,index) {
+  console.log(index);
   await changePaperStatus(id, status, pinned,statusInfo);
-  
 }
 function handleCurrentChange(val) {
   currentPage.value = val;
-  console.log(currentPage.value);
 }
 
 function handleSizeChange(val) {

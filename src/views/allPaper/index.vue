@@ -86,16 +86,16 @@
             <el-button
               type="success"
               :disabled="row.disabledList[0]"
-              @click="changeStatus(row.id, 2, 1,null)"
+              @click="changeStatus(row, 2, 1,null)"
               >{{ row.statusList[0] }}</el-button
             >
-            <el-button type="warning" :disabled="row.disabledList[1]" @click="changeStatus(row.id, 3,1,'驳回')">{{
+            <el-button type="warning"  @click="changeStatus(row, 3,1,'驳回')" :disabled="row.disabledList[1]">{{
               row.statusList[1]
             }}</el-button>
-            <el-button type="primary" plain @click="changeStatus(row.id,2,(row.pinned == 2)?1:2,null)">{{
+            <el-button type="primary" plain @click="changeStatus(row,2,(row.pinned == 2)?1:2,null)">{{
               row.statusList[2]
             }}</el-button>
-            <el-button type="danger" :disabled="row.disabledList[3]" @click="changeStatus(row.id, 4,1,null)">{{
+            <el-button type="danger" :disabled="row.disabledList[3]" @click="changeStatus(row, 4,1,null)">{{
               row.statusList[3]
             }}</el-button>
           </template>
@@ -123,9 +123,9 @@ let currentPage = ref(1);
 let pageSize = ref(20);
 let imgSrcList = ref([]);
 let total = ref(0);
-onMounted(() => {
-  getPaperNumber(0, "2022-07-30");
-  selectAllPaper(currentPage.value);
+onMounted(async() => {
+  await getPaperNumber(0, "2022-07-30");
+  await selectAllPaper(currentPage.value);
 });
 async function getPaperNumber(type, sinceDate) {
   let res = await getAllPaperNumber(type, sinceDate);
@@ -164,10 +164,26 @@ function handleCurrentChange(val) {
   currentPage.value = val;
   selectAllPaper(currentPage.value);
 }
-
-async function changeStatus(id, status, pinned,statusInfo) {
-  await changePaperStatus(id, status, pinned,statusInfo);
-  selectAllPaper(currentPage.value);
+function changeStatus(row, status, pinned,statusInfo) {
+  changePaperStatus(row.id, status, pinned,statusInfo);
+  if (status == 1) {
+    row.statusList = ["通过", "驳回", "置顶", "删除"];
+    row.disabledList = [false, false, false, false];
+  } else if (status == 2) {
+    if (pinned == 1) {
+      row.statusList = ["已通过", "驳回", "置顶", "删除"];
+      row.disabledList = [true, false, false, false];
+    } else {
+      row.statusList = ["已通过", "驳回", "取消置顶", "删除"];
+      row.disabledList = [true, false, false, false];
+    }
+  } else if (status == 3) {
+    row.statusList = ["通过", "已驳回", "置顶", "删除"];
+    row.disabledList = [false, true, false, false];
+  } else if (status == 4) {
+    row.statusList = ["通过", "驳回", "置顶", "已删除"];
+    row.disabledList = [false, false, false, true];
+  }
 }
 </script>
 
