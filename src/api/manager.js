@@ -20,11 +20,12 @@ export function checkLogin() {
 }
 
 //分页查询全部纸条
-export function selectAll(page) {
-  return axios.get('/statistics/historyPosts', {
-      params: {
-        page
-      }
+export function selectAll(current,size,order,match) {
+  return axios.post('/bbs/post/getPostByPage', {
+    current,
+    size,
+    order,
+    match
   });
 }
 
@@ -46,18 +47,17 @@ export function getComment() {
 }
 
 //改变纸条状态
-export function changePaperStatus(id,status,pinned,statusInfo) {
-  return axios.post('/audit/post/setStatusAndPinned', {
+export function changePaperStatus(id,status,statusInfo) {
+  return axios.post('/bbs/post/setStatus', {
     id,
     status,
-    pinned,
     statusInfo
   })
 }
 
 //获取某个时间之后的某种分类的纸条数量
 export function getAllPaperNumber(type,sinceDate) {
-  return axios.get('/statistics/postCount', {
+  return axios.get('/bbs/statistics/post/getPostCount', {
     params: {
       type,
       sinceDate

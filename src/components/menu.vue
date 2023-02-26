@@ -1,36 +1,32 @@
 <template>
-  <el-menu
-    :default-active="ac_index"
-    class="el-menu-vertical-demo"
-    router
-    @select="handleSelect"
-  >
-    <el-sub-menu index="1">
-      <template #title>
-        <el-icon><Promotion /></el-icon>
-        <span>帖子</span>
-      </template>
-      <el-menu-item index="/checking">待审核</el-menu-item>
-      <el-menu-item index="/allPaper">全部</el-menu-item>
-      <el-menu-item index="/comment">待审核评论</el-menu-item>
-    </el-sub-menu>
+  <el-menu :default-active="ac_index" class="el-menu-vertical-demo" router @select="handleSelect">
+    <el-menu-item index="/allPaper">
+      <el-icon>
+        <Promotion />
+      </el-icon>
+      <span>帖子</span>
+    </el-menu-item>
+    <el-menu-item index="/carousel">
+      <el-icon><Picture /></el-icon>
+      <span>轮播图</span>
+    </el-menu-item>
   </el-menu>
 </template>
 
 <script setup>
-import { ref,onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 onMounted(() => {
   if (JSON.parse(localStorage.getItem('ac_index'))) {
     ac_index.value = JSON.parse(localStorage.getItem('ac_index'));
     router.push(ac_index.value);
   } else {
-    ac_index.value = '/checking';
+    ac_index.value = '/allPaper';
     router.push(ac_index.value);
   }
 });
 const router = useRouter();
-const ac_index = ref("/checking");
+const ac_index = ref("/allPaper");
 router.push(ac_index.value);
 const handleSelect = (index) => {
   localStorage.setItem("ac_index", JSON.stringify(index));
@@ -40,4 +36,5 @@ const handleSelect = (index) => {
 </script>
 
 <style lang="scss" scoped>
+
 </style>

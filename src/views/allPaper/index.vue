@@ -1,20 +1,12 @@
 <template>
   <div>
-    <el-card class="box-card">
+    <el-card class="box-card" :xs="24">
       <el-row class="mb-4">
-        <el-col :span="6" :xs="24">
-          <el-input
-            v-model="inputSearch"
-            class=""
-            placeholder="Type something"
-            :prefix-icon="Search"
-        /></el-col>
-        <el-col
-          :span="4"
-          :xs="6"
-          class="flex items-center justify-center w-full"
-        >
-          <el-dropdown>
+        <el-col :span="6" :xs="18">
+          <el-input v-model="inputSearch" class="" placeholder="Type something" :prefix-icon="Search" />
+        </el-col>
+        <el-col :span="4" :xs="6" style="text-align: center;line-height: 40px;">
+          <el-dropdown style="margin-top: 7px;" @command="handleCommand">
             <span class="el-dropdown-link">
               分类
               <el-icon class="el-icon--right">
@@ -23,118 +15,113 @@
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>吐槽</el-dropdown-item>
-                <el-dropdown-item>表白</el-dropdown-item>
-                <el-dropdown-item>拼车</el-dropdown-item>
-                <el-dropdown-item>跑腿</el-dropdown-item>
+                <el-dropdown-item command="0">全部</el-dropdown-item>
+                <el-dropdown-item command="1">吐槽</el-dropdown-item>
+                <el-dropdown-item command="2">表白</el-dropdown-item>
+                <el-dropdown-item command="3">拼车</el-dropdown-item>
+                <el-dropdown-item command="4">跑腿</el-dropdown-item>
+                <el-dropdown-item command="5">闲置</el-dropdown-item>
+                <el-dropdown-item command="6">问问</el-dropdown-item>
               </el-dropdown-menu>
             </template>
-          </el-dropdown></el-col
-        >
+          </el-dropdown></el-col>
         <!-- <el-col :span="14" :xs="24">
-          <el-checkbox-group v-model="checkList">
-            <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">
-              全部
-            </el-checkbox>
-            <el-checkbox
-              v-for="status in statuses"
-              :key="status"
-              :label="status"
-              >{{ status }}
-            </el-checkbox>
-          </el-checkbox-group>
-        </el-col> -->
+            <el-checkbox-group v-model="checkList">
+              <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">
+                全部
+              </el-checkbox>
+              <el-checkbox
+                v-for="status in statuses"
+                :key="status"
+                :label="status"
+                >{{ status }}
+              </el-checkbox>
+            </el-checkbox-group>
+          </el-col> -->
       </el-row>
       <el-table :data="tableData" style="width: 100%" table-layout="auto">
-        <el-table-column prop="createTime" label="发布时间" width="120" />
-        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column prop="createTime" label="发布时间" width="145" />
+        <!-- <el-table-column prop="id" label="ID" width="80" /> -->
         <el-table-column prop="typeInfo" label="类型" width="100" />
         <el-table-column label="头像" width="100">
           <template #default="{ row }">
-            <el-image
-              :src="row.authorProfile.avatarUrl"
-              fit="cover"
-              style="width: 50px; height: 50px"
-              :preview-src-list="imgSrcList"
-              @click="handlePreview(row.authorProfile.avatarUrl)"
-              class="rounded-sm"
-              :preview-teleported="true"
-            />
+            <el-image :src="row.authorProfile.avatarUrl" fit="cover" style="width: 50px; height: 50px"
+              :preview-src-list="imgSrcList" @click="handlePreview(row.authorProfile.avatarUrl)" class="rounded-sm"
+              :preview-teleported="true" />
           </template>
         </el-table-column>
-        <el-table-column
-          prop="authorProfile.nickname"
-          label="昵称"
-          width="120"
-        />
+        <el-table-column prop="authorProfile.nickname" label="昵称" width="120" />
         <el-table-column prop="content" label="内容" width="350" />
-        <el-table-column prop="" label="图片" width="210">
+        <el-table-column prop="" label="图片" width="175">
           <template #default="{ row }">
-            <el-image
-              :src="item"
-              fit="cover"
-              style="width: 50px; height: 50px;"
-              v-for="item in row.picUrlList"
-              :preview-src-list="row.picUrlList"
-              class="rounded-sm"
-              :preview-teleported="true"
-            />
+            <el-image :src="item" fit="cover" style="width: 50px; height: 50px;" v-for="item in row.picUrlList"
+              :preview-src-list="row.picUrlList" class="rounded-sm" :preview-teleported="true" />
           </template>
         </el-table-column>
-        <el-table-column prop="" label="状态" width="360">
+        <el-table-column label="状态" width="100">
           <template #default="{ row }">
-            <el-button
-              type="success"
-              :disabled="row.disabledList[0]"
-              @click="changeStatus(row, 2, 1,null)"
-              >{{ row.statusList[0] }}</el-button
-            >
-            <el-button type="warning"  @click="changeStatus(row, 3,1,'驳回')" :disabled="row.disabledList[1]">{{
+            {{statusList[row.status-1]}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="" label="操作" width="360">
+          <template #default="{ row }">
+            <el-button type="success" :disabled="row.disabledList[0]" @click="changeStatus(row, 2, 1, null)">{{
+              row.statusList[0] }}</el-button>
+            <el-button type="warning" @click="changeStatus(row, 3, 1, '驳回')" :disabled="row.disabledList[1]">{{
               row.statusList[1]
             }}</el-button>
-            <el-button type="primary" plain @click="changeStatus(row,2,(row.pinned == 2)?1:2,null)">{{
+            <el-button type="primary" plain @click="changeStatus(row, 2, (row.pinned == 2) ? 1 : 2, null)">{{
               row.statusList[2]
             }}</el-button>
-            <el-button type="danger" :disabled="row.disabledList[3]" @click="changeStatus(row, 4,1,null)">{{
+            <el-button type="danger" :disabled="row.disabledList[3]" @click="changeStatus(row, 4, 1, '审核不通过')">{{
               row.statusList[3]
             }}</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
-    <el-pagination
-      v-model:currentPage="currentPage"
-      v-model:page-size="pageSize"
-      layout="prev, pager, next, jumper"
-      :total="total"
-      @current-change="handleCurrentChange"
-      class="mt-4"
-    />
+    <el-pagination v-model:currentPage="currentPage" v-model:page-size="pageSize" layout="prev, pager, next, jumper"
+      :total="total" @current-change="handleCurrentChange" class="mt-4" />
   </div>
 </template>
 
 <script setup>
-import { selectAll, getAllPaperNumber, changePaperStatus } from "~/api/manager";
+import { selectAll, changePaperStatus } from "~/api/manager";
 import { ref, onMounted } from "vue";
 import { Search } from "@element-plus/icons-vue";
+import { ElMessage } from 'element-plus'
 let inputSearch = ref("");
 let tableData = ref([]);
 let currentPage = ref(1);
 let pageSize = ref(20);
 let imgSrcList = ref([]);
 let total = ref(0);
-onMounted(async() => {
-  await getPaperNumber(0, "2022-07-30");
-  await selectAllPaper(currentPage.value);
-});
-async function getPaperNumber(type, sinceDate) {
-  let res = await getAllPaperNumber(type, sinceDate);
-  total.value = res.data.data
+const statusList = ['待审核','已通过','不通过','已删除']
+const handleCommand = (command) => {
+  console.log(command);
 }
+onMounted(async () => {
+  // await getPaperNumber(0, "2022-07-30");
+  const order = [{
+    "column": "id",
+    "asc": false
+  }]
+  const match = [{
+    "column": "status",
+    "value": "4",
+    "rule": 'ne'
+  }]
+  await selectAllPaper(currentPage.value, pageSize.value, order,match);
+});
+// async function getPaperNumber(type, sinceDate) {
+//   let res = await getAllPaperNumber(type, sinceDate);
+//   total.value = res.data.data
+// }
 //查询当前选择页的纸条
-async function selectAllPaper(currentPage) {
-  let res = await selectAll(currentPage);
-  tableData.value = res.data.data;
+async function selectAllPaper(current, size, order,match) {
+  let res = await selectAll(current, size, order,match);
+  total.value = res.data.data.total
+  tableData.value = res.data.data.records;
   for (const val of tableData.value) {
     if (val.status == 1) {
       val.statusList = ["通过", "驳回", "置顶", "删除"];
@@ -161,11 +148,15 @@ function handlePreview(file) {
   imgSrcList.value.push(file);
 }
 function handleCurrentChange(val) {
+  const order = [{
+    "column": "id",
+    "asc": false
+  }]
   currentPage.value = val;
-  selectAllPaper(currentPage.value);
+  selectAllPaper(currentPage.value, pageSize.value, order);
 }
-function changeStatus(row, status, pinned,statusInfo) {
-  changePaperStatus(row.id, status, pinned,statusInfo);
+function changeStatus(row, status, pinned, statusInfo) {
+  changePaperStatus(row.id, status, pinned, statusInfo);
   if (status == 1) {
     row.statusList = ["通过", "驳回", "置顶", "删除"];
     row.disabledList = [false, false, false, false];

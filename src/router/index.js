@@ -9,7 +9,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: () => import('../views/home/index.vue'),
-    redirect: '/checking',
+    redirect: '/allPaper',
     children: [
       {
         path: '/allPaper',
@@ -17,14 +17,9 @@ const routes = [
         component: () => import('../views/allPaper/index.vue')
       },
       {
-        path: '/checking',
-        name: 'Checking',
-        component: () => import('~/views/checking/index.vue')
-      },
-      {
-        path: '/comment',
-        name: 'Comment',
-        component: () => import('~/views/comment/index.vue')
+        path: '/carousel',
+        name: 'Carousel',
+        component: () => import('../views/carousel/index.vue')
       }
     ]
   },

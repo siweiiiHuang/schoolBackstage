@@ -2,7 +2,7 @@
   <div class="w-full min-h-screen flex justify-center items-center">
     <el-form :model="form" class="w-[250px]" :rules="rules" ref="formRef">
       <el-form-item label="账号" prop="phone">
-        <el-input v-model="form.phone" />
+        <el-input v-model="form.phone" @change="phoneChange" />
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <el-input v-model="form.password" show-password />
@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, onUpdated } from "vue";
 import { login } from "~/api/manager";
 import { toast } from '~/composables/util'
 import { useRouter } from "vue-router";
@@ -33,6 +33,10 @@ const form = reactive({
   password: "",
   remeber: false,
 });
+
+const phoneChange = ()=>{
+  console.log(form.phone);
+}
 
 const rules = reactive({
   phone: [{ required: true, message: "账号不能为空", trigger: "blur" }],
