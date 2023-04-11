@@ -7,8 +7,16 @@
       <span>帖子</span>
     </el-menu-item>
     <el-menu-item index="/carousel">
-      <el-icon><Picture /></el-icon>
+      <el-icon>
+        <Picture />
+      </el-icon>
       <span>轮播图</span>
+    </el-menu-item>
+    <el-menu-item index="/dustbin">
+      <el-icon>
+        <Delete />
+      </el-icon>
+      <span>回收站</span>
     </el-menu-item>
   </el-menu>
 </template>
@@ -35,6 +43,4 @@ const handleSelect = (index) => {
 };
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

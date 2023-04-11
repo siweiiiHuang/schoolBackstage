@@ -20,6 +20,11 @@ const routes = [
         path: '/carousel',
         name: 'Carousel',
         component: () => import('../views/carousel/index.vue')
+      },
+      {
+        path: '/dustbin',
+        name: 'Dustbin',
+        component: () => import('../views/dustbin/index.vue')
       }
     ]
   },

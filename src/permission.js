@@ -14,7 +14,6 @@ router.beforeEach((to, from, next) => {
             return next({ path: '/login' })
         }
         if (value.data.code == 10 && to.path === '/login') {
-            toast('请勿重复登录', 'warning')
             return next({ path: from.path })
         }
         next()

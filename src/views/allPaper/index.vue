@@ -3,7 +3,8 @@
     <el-card class="box-card" :xs="24">
       <el-row class="mb-4">
         <el-col :span="6" :xs="18">
-          <el-input v-model="inputSearch" class="" placeholder="Type something" :prefix-icon="Search" />
+          <el-input v-model="inputSearch" class="" placeholder="Type something" :prefix-icon="Search"
+            @change="searchQuery(inputSearch)" />
         </el-col>
         <el-col :span="4" :xs="6" style="text-align: center;line-height: 40px;">
           <el-dropdown style="margin-top: 7px;" @command="handleCommand">
@@ -25,23 +26,10 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown></el-col>
-        <!-- <el-col :span="14" :xs="24">
-            <el-checkbox-group v-model="checkList">
-              <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">
-                全部
-              </el-checkbox>
-              <el-checkbox
-                v-for="status in statuses"
-                :key="status"
-                :label="status"
-                >{{ status }}
-              </el-checkbox>
-            </el-checkbox-group>
-          </el-col> -->
       </el-row>
       <el-table :data="tableData" style="width: 100%" table-layout="auto">
         <el-table-column prop="createTime" label="发布时间" width="145" />
-        <!-- <el-table-column prop="id" label="ID" width="80" /> -->
+        <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="typeInfo" label="类型" width="100" />
         <el-table-column label="头像" width="100">
           <template #default="{ row }">
@@ -58,123 +46,175 @@
               :preview-src-list="row.picUrlList" class="rounded-sm" :preview-teleported="true" />
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="100">
+        <el-table-column prop="" label="操作" width="180">
           <template #default="{ row }">
-            {{statusList[row.status-1]}}
+            <el-button type="danger" @click="deletePaper(row.id)">删除</el-button>
+            <el-button type="warning" @click="banSomebody(row.authorIdStr)">禁言</el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="" label="操作" width="360">
+        <el-table-column label="置顶" width="100">
           <template #default="{ row }">
-            <el-button type="success" :disabled="row.disabledList[0]" @click="changeStatus(row, 2, 1, null)">{{
-              row.statusList[0] }}</el-button>
-            <el-button type="warning" @click="changeStatus(row, 3, 1, '驳回')" :disabled="row.disabledList[1]">{{
-              row.statusList[1]
-            }}</el-button>
-            <el-button type="primary" plain @click="changeStatus(row, 2, (row.pinned == 2) ? 1 : 2, null)">{{
-              row.statusList[2]
-            }}</el-button>
-            <el-button type="danger" :disabled="row.disabledList[3]" @click="changeStatus(row, 4, 1, '审核不通过')">{{
-              row.statusList[3]
-            }}</el-button>
+            <el-switch v-model="row.pinned" :before-change="beforeSwitchChange"
+              @change="switchChange(row.id, row.pinned)" />
           </template>
         </el-table-column>
       </el-table>
     </el-card>
     <el-pagination v-model:currentPage="currentPage" v-model:page-size="pageSize" layout="prev, pager, next, jumper"
       :total="total" @current-change="handleCurrentChange" class="mt-4" />
+    <el-dialog v-model="dialogVisible" title="Tips" width="30%" :before-close="handleClose">
+      <span>{{ dialogMessage }}</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="onConfirmDialogVisible">
+            确定
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { selectAll, changePaperStatus } from "~/api/manager";
-import { ref, onMounted } from "vue";
+import { selectAll, setTop, unTop, banOne, delPaper } from "~/api/manager";
+import { ref, onMounted, reactive } from "vue";
 import { Search } from "@element-plus/icons-vue";
-import { ElMessage } from 'element-plus'
+
+//对话框可见值
+const dialogVisible = ref(false)
+//搜索框输入值
 let inputSearch = ref("");
+//表格数据
 let tableData = ref([]);
+//当前页
 let currentPage = ref(1);
+//每页条数
 let pageSize = ref(20);
+//图片列表
 let imgSrcList = ref([]);
+//帖子总数
 let total = ref(0);
-const statusList = ['待审核','已通过','不通过','已删除']
-const handleCommand = (command) => {
-  console.log(command);
-}
-onMounted(async () => {
-  // await getPaperNumber(0, "2022-07-30");
-  const order = [{
-    "column": "id",
-    "asc": false
-  }]
-  const match = [{
+//帖子规则
+let match = [{
+  "column": "status",
+  "value": "4",
+  "rule": 'ne'
+}]
+//dialog文本
+let dialogMessage = ref('')
+//切换分类
+const handleCommand = async (command) => {
+  match = [{
+    "column": "type",
+    "value": command,
+    "rule": 'eq'
+  }, {
     "column": "status",
     "value": "4",
     "rule": 'ne'
   }]
-  await selectAllPaper(currentPage.value, pageSize.value, order,match);
-});
-// async function getPaperNumber(type, sinceDate) {
-//   let res = await getAllPaperNumber(type, sinceDate);
-//   total.value = res.data.data
-// }
-//查询当前选择页的纸条
-async function selectAllPaper(current, size, order,match) {
-  let res = await selectAll(current, size, order,match);
-  total.value = res.data.data.total
-  tableData.value = res.data.data.records;
-  for (const val of tableData.value) {
-    if (val.status == 1) {
-      val.statusList = ["通过", "驳回", "置顶", "删除"];
-      val.disabledList = [false, false, false, false];
-    } else if (val.status == 2) {
-      if (val.pinned == 1) {
-        val.statusList = ["已通过", "驳回", "置顶", "删除"];
-        val.disabledList = [true, false, false, false];
-      } else {
-        val.statusList = ["已通过", "驳回", "取消置顶", "删除"];
-        val.disabledList = [true, false, false, false];
-      }
-    } else if (val.status == 3) {
-      val.statusList = ["通过", "已驳回", "置顶", "删除"];
-      val.disabledList = [false, true, false, false];
-    } else if (val.status == 4) {
-      val.statusList = ["通过", "驳回", "置顶", "已删除"];
-      val.disabledList = [false, false, false, true];
-    }
-  }
+  await selectAllPaper(currentPage.value, pageSize.value, order, match);
 }
+const order = [{
+  "column": "id",
+  "asc": false
+}]
+onMounted(async () => {
+  await selectAllPaper(currentPage.value, pageSize.value, order, match);
+});
+
+//查询纸条
+async function selectAllPaper(current, size, order, match) {
+  let res = await selectAll(current, size, order, match);
+  total.value = res.data.data.total
+  tableData.value = res.data.data.records.map((item) => {
+    item.pinned = item.pinned === 1 ? false : true
+    console.log(item.pinned);
+    return item
+  })
+}
+//预览图片
 function handlePreview(file) {
   imgSrcList.value = [];
   imgSrcList.value.push(file);
 }
+
+//切换当前页
 function handleCurrentChange(val) {
-  const order = [{
-    "column": "id",
-    "asc": false
+  match = [{
+    "column": "status",
+    "value": 4,
+    "rule": 'ne'
   }]
   currentPage.value = val;
-  selectAllPaper(currentPage.value, pageSize.value, order);
+  selectAllPaper(currentPage.value, pageSize.value, order, match);
 }
-function changeStatus(row, status, pinned, statusInfo) {
-  changePaperStatus(row.id, status, pinned, statusInfo);
-  if (status == 1) {
-    row.statusList = ["通过", "驳回", "置顶", "删除"];
-    row.disabledList = [false, false, false, false];
-  } else if (status == 2) {
-    if (pinned == 1) {
-      row.statusList = ["已通过", "驳回", "置顶", "删除"];
-      row.disabledList = [true, false, false, false];
-    } else {
-      row.statusList = ["已通过", "驳回", "取消置顶", "删除"];
-      row.disabledList = [true, false, false, false];
-    }
-  } else if (status == 3) {
-    row.statusList = ["通过", "已驳回", "置顶", "删除"];
-    row.disabledList = [false, true, false, false];
-  } else if (status == 4) {
-    row.statusList = ["通过", "驳回", "置顶", "已删除"];
-    row.disabledList = [false, false, false, true];
+
+//搜索实现模糊查询
+const searchQuery = async (val) => {
+  console.log(val);
+  match = [{
+    "column": "content",
+    "value": val,
+    "rule": 'like'
+  }]
+  if (val == '') {
+    match = [{
+      "column": "status",
+      "value": 4,
+      "rule": 'ne'
+    }]
   }
+  await selectAllPaper(currentPage.value, pageSize.value, order, match);
+}
+//开关
+let switchState = reactive({
+  switchStatus: false,
+})
+const beforeSwitchChange = (val) => {
+  switchState.switchStatus = true;
+  return switchState.switchStatus;
+};
+const switchChange = (id, val) => {
+  if (switchState.switchStatus) {
+    console.log(val, "开关");
+    if (val) {
+      setTop(id)
+    } else {
+      unTop(id)
+    }
+  }
+}
+let banID = null
+let deleteID = null
+//1为禁言，2为删除
+let dialogType = null
+//禁言用户
+const banSomebody = (authorID) => {
+  dialogVisible.value = true
+  dialogMessage.value = '你确定要把该用户禁言吗？'
+  banID = authorID
+  dialogType = 1
+}
+//对话框点击确认
+const onConfirmDialogVisible = async () => {
+  if (dialogType === 1) banOne(banID)
+  else await delPaper(deleteID, 4, null)
+  dialogVisible.value = false
+  match = [{
+    "column": "status",
+    "value": "4",
+    "rule": 'ne'
+  }]
+  await selectAllPaper(currentPage.value, pageSize.value, order, match)
+}
+//删除帖子
+const deletePaper = (id) => {
+  dialogVisible.value = true
+  dialogMessage.value = '你确定要把这条纸条删除吗？'
+  deleteID = id
+  dialogType = 2
 }
 </script>
 

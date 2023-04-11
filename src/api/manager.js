@@ -46,12 +46,20 @@ export function getComment() {
   })
 }
 
-//改变纸条状态
-export function changePaperStatus(id,status,statusInfo) {
+//删除帖子
+export function delPaper(id,status,statusInfo) {
   return axios.post('/bbs/post/setStatus', {
     id,
     status,
     statusInfo
+  })
+}
+
+//取消删除帖子
+export function cancelDelPaper(id,status) {
+  return axios.post('/bbs/post/setStatus', {
+    id,
+    status,
   })
 }
 
@@ -63,4 +71,24 @@ export function getAllPaperNumber(type,sinceDate) {
       sinceDate
     }
   })
+}
+
+//禁言
+export function banOne(id) {
+  return axios.post('/bbs/banSomebody/'+id)
+}
+
+//置顶
+export function setTop(id) {
+  return axios.post('/bbs/post/pin/'+id)
+}
+
+//取消置顶
+export function unTop() {
+  return axios.post('/bbs/post/unpin')
+}
+
+//获取轮播图列表
+export function getcarouselList() {
+  return axios.get('/toolbox/banner/getAllBanners')
 }
