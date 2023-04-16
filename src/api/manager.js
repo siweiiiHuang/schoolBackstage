@@ -92,3 +92,20 @@ export function unTop() {
 export function getcarouselList() {
   return axios.get('/toolbox/banner/getAllBanners')
 }
+
+//增加轮播图
+export function addCarousel(form) {
+  return axios.post('/toolbox/banner/addBanner', {
+    name: form.name,
+    orderNum: form.orderNum,
+    picUrl: form.picUrl,
+    jumpToUrl: form.jumpToUrl,
+    type: form.type,
+    appid: form.appid
+  })
+}
+
+//通过id删除轮播图
+export function delCarouselByID(id) {
+  return axios.post('/toolbox/banner/deleteBannerById/'+id)
+}
