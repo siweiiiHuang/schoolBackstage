@@ -8,18 +8,18 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  server: {
-    proxy: {
-      // 选项写法
-      "/api": {
-        target: "https://sss.yewanba.com/quwancopy/admin",
-        // target: "https://sss.yewanba.com/quwan/admin",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-        cors: true,
-      },
-    },
-  },
+  // server: {
+  //   proxy: {
+  //     // 选项写法
+  //     "/api": {
+  //       // target: "https://sss.yewanba.com/quwancopy/admin",
+  //       target: "https://sss.yewanba.com/quwan/admin",
+  //       changeOrigin: true,
+  //       rewrite: (path) => path.replace(/^\/api/, ""),
+  //       cors: true,
+  //     },
+  //   },
+  // },
   resolve: { alias: { "~": path.resolve(__dirname, "src") } },
   base: "./",
   plugins: [
